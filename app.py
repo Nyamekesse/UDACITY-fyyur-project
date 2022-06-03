@@ -118,8 +118,8 @@ def show_venue(venue_id):
         if singleShow.start_time > datetime.datetime.now():
             numberOfUpcomingNewShows = numberOfUpcomingNewShows + 1
             upcomingShowList.append(singleShow.artist_id)
-            upcomingShowList.append(singleShow.artist.name)
-            upcomingShowList.append(singleShow.artist.image_link)
+            upcomingShowList.append(singleShow.artists.name)
+            upcomingShowList.append(singleShow.artists.image_link)
             upcomingShowList.append(
                 format_datetime(str(singleShow.start_time)))
             upcomingShowsCombine = dict(zip(initialInfoList, upcomingShowList))
@@ -127,8 +127,8 @@ def show_venue(venue_id):
         else:
             numberOfOldShows = numberOfOldShows + 1
             oldShowList.append(singleShow.artist_id)
-            oldShowList.append(singleShow.artist.name)
-            oldShowList.append(singleShow.artist.image_link)
+            oldShowList.append(singleShow.artists.name)
+            oldShowList.append(singleShow.artists.image_link)
             oldShowList.append(format_datetime(str(singleShow.start_time)))
             oldShowsCombine = dict(zip(initialInfoList, oldShowList))
             oldShows.append(oldShowsCombine)
@@ -254,8 +254,8 @@ def show_artist(artist_id):
         if singleShow.start_time > datetime.datetime.now():
             numberOfUpcomingNewShows = numberOfUpcomingNewShows + 1
             newUpcomingShowsList.append(singleShow.venue_id)
-            newUpcomingShowsList.append(singleShow.venue.name)
-            newUpcomingShowsList.append(singleShow.venue.image_link)
+            newUpcomingShowsList.append(singleShow.venues.name)
+            newUpcomingShowsList.append(singleShow.venues.image_link)
             newUpcomingShowsList.append(
                 format_datetime(str(singleShow.start_time)))
             upcomingShowsCombine = dict(
@@ -264,8 +264,8 @@ def show_artist(artist_id):
         else:
             numberOfOldShows = numberOfOldShows + 1
             oldShowsList.append(singleShow.venue_id)
-            oldShowsList.append(singleShow.venue.name)
-            oldShowsList.append(singleShow.venue.image_link)
+            oldShowsList.append(singleShow.venues.name)
+            oldShowsList.append(singleShow.venues.image_link)
             oldShowsList.append(format_datetime(str(singleShow.start_time)))
             oldShowsCombine = dict(zip(initialInfoList, oldShowsList))
             oldShows.append(oldShowsCombine)
@@ -426,8 +426,8 @@ def shows():
     # displays list of shows at /shows
     all_shows = db.session.query(Show).join(Artist).join(Venue).all()
 
-    data = [{"venue_id": show.venue_id, "venue_name": show.venue.name, "artist_id": show.artist_id,
-             "artist_name": show.artist.name, "artist_image_link": show.artist.image_link, "start_time": show.start_time.isoformat()} for show in all_shows]
+    data = [{"venue_id": show.venue_id, "venue_name": show.venues.name, "artist_id": show.artist_id,
+             "artist_name": show.artists.name, "artist_image_link": show.artists.image_link, "start_time": show.start_time.isoformat()} for show in all_shows]
 
     return render_template('pages/shows.html', shows=data)
 
@@ -451,11 +451,12 @@ def create_show_submission():
         db.session.commit()
         # on successful db insert, flash success
         flash('Show was successfully listed!')
-    except:
+    except Exception as e:
         # e.g., flash('An error occurred. Show could not be listed.')
         # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
         db.session.rollback()
         flash('Show was unsuccessfully listed!')
+        print(e)
     finally:
         db.session.close()
         return render_template('pages/home.html')
