@@ -7,14 +7,13 @@ import babel
 from flask import render_template
 from flask_moment import Moment
 import logging
-from logging import Formatter, FileHandler
+from logging import (Formatter, FileHandler)
 from sqlalchemy import desc
-from forms import *
-from models import *
+from models import (Artist, Venue, app, db)
 from config import DatabaseURI
-from showsRoute import routeShows
-from venuesRoutes import routeVenues
-from artistsRoutes import routeArtists
+from blueprints.showsRoute import routeShows
+from blueprints.venuesRoutes import routeVenues
+from blueprints.artistsRoutes import routeArtists
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -26,7 +25,7 @@ db.init_app(app)
 app.register_blueprint(routeShows)
 app.register_blueprint(routeVenues)
 app.register_blueprint(routeArtists)
-# db.create_all()
+
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
@@ -54,8 +53,8 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-    venues = Venue.query.order_by(desc(Venue.created_date)).limit(10).all()
-    artists = Artist.query.order_by(desc(Artist.created_date)).limit(10).all()
+    venues = Venue.query.order_by(desc(Venue.id)).limit(5).all()
+    artists = Artist.query.order_by(desc(Artist.id)).limit(5).all()
     return render_template('pages/home.html', venues=venues, artists=artists)
 
 

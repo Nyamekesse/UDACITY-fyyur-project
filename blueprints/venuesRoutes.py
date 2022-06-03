@@ -1,7 +1,7 @@
-
-from flask import Blueprint, Flask, redirect, render_template, request, flash, url_for
 import dateutil.parser
 import babel
+from flask import (Blueprint, redirect, render_template,
+                   request, flash, url_for)
 from forms import *
 import datetime
 from models import *
@@ -55,14 +55,11 @@ def search_venues():
 
 @routeVenues.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-    # create empty list variables
-    oldShows = list()
-    upcomingNewShows = list()
-    upcomingShowList = list()
     oldShowList = list()
     exportSingleVenueList = list()
-    # initialize & assign variables to 0
-    numberOfOldShows = numberOfUpcomingNewShows = 0
+    upcomingShowList = list()
+    upcomingNewShows = list()
+    oldShows = list()
     # select the specific info by querying
     venue = Venue.query.get(venue_id)
     # create initial list to be used to match data later
@@ -70,25 +67,32 @@ def show_venue(venue_id):
                        "artist_image_link", "start_time"]
     expectedDataInfo = ["id", "name", "genres", "address", "city", "state", "phone", "website", "facebook_link", "seeking_talent",
                         "seeking_description", "image_link", "past_shows", "past_shows_count", "upcoming_shows", "upcoming_shows_count"]
-    # loop through the show result queried
-    for singleShow in venue.shows:
-        if singleShow.start_time > datetime.datetime.now():
-            numberOfUpcomingNewShows = numberOfUpcomingNewShows + 1
-            upcomingShowList.append(singleShow.artist_id)
-            upcomingShowList.append(singleShow.artists.name)
-            upcomingShowList.append(singleShow.artists.image_link)
-            upcomingShowList.append(
-                format_datetime(str(singleShow.start_time)))
-            upcomingShowsCombine = dict(zip(initialInfoList, upcomingShowList))
-            upcomingNewShows.append(upcomingShowsCombine)
-        else:
-            numberOfOldShows = numberOfOldShows + 1
-            oldShowList.append(singleShow.artist_id)
-            oldShowList.append(singleShow.artists.name)
-            oldShowList.append(singleShow.artists.image_link)
-            oldShowList.append(format_datetime(str(singleShow.start_time)))
-            oldShowsCombine = dict(zip(initialInfoList, oldShowList))
-            oldShows.append(oldShowsCombine)
+    # query to get upcoming shows using joins from shows table and artist table
+    # filtering by start time being greater than present time
+    upcoming_shows_query = db.session.query(Show).join(Artist).filter(
+        Show.venue_id == venue_id).filter(Show.start_time > datetime.datetime.now()).all()
+    for singleShow in upcoming_shows_query:
+        upcomingShowList.append(singleShow.artist_id)
+        upcomingShowList.append(singleShow.artists.name)
+        upcomingShowList.append(singleShow.artists.image_link)
+        upcomingShowList.append(
+            format_datetime(str(singleShow.start_time)))
+        upcomingShowsCombine = dict(zip(initialInfoList, upcomingShowList))
+        upcomingShowList.clear()
+        upcomingNewShows.append(upcomingShowsCombine)
+    # query to get past shows using joins from shows table and artist table
+    # filtering by start time being less than present time
+    past_shows_query = db.session.query(Show).join(Artist).filter(
+        Show.venue_id == venue_id).filter(Show.start_time < datetime.datetime.now()).all()
+    for singleShow in past_shows_query:
+        oldShowList.append(singleShow.artist_id)
+        oldShowList.append(singleShow.artists.name)
+        oldShowList.append(singleShow.artists.image_link)
+        oldShowList.append(format_datetime(str(singleShow.start_time)))
+        oldShowsCombine = dict(zip(initialInfoList, oldShowList))
+        oldShowList.clear()
+        oldShows.append(oldShowsCombine)
+
     # adding the needed info to initialized list variable
     exportSingleVenueList.append(venue_id)
     exportSingleVenueList.append(venue.name)
@@ -103,12 +107,12 @@ def show_venue(venue_id):
     exportSingleVenueList.append(venue.seeking_description)
     exportSingleVenueList.append(venue.image_link)
     exportSingleVenueList.append(oldShows)
-    exportSingleVenueList.append(numberOfOldShows)
+    exportSingleVenueList.append(len(past_shows_query))
     exportSingleVenueList.append(upcomingNewShows)
-    exportSingleVenueList.append(numberOfUpcomingNewShows)
+    exportSingleVenueList.append(len(upcoming_shows_query))
 
     data = dict(zip(expectedDataInfo, exportSingleVenueList))
-
+    print(data)
     return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
@@ -145,7 +149,8 @@ def create_venue_submission():
             flash('Venue ' + request.form['name'] +
                   ' was successfully listed!')
     except Exception as e:
-        flash('Venue ' + request.form['name'] + ' was unsuccessfully listed!')
+        flash('Venue ' + request.form['name'] +
+              ' was unsuccessfully listed!\n'+e)
         print(e)
     finally:
         db.session.close()

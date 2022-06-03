@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, AnyOf, URL
 import phonenumbers
 
 
-def validate_phone(field):
+def validate_phone(form, field):
     if len(field.data) != 10:
         raise ValidationError('Invalid phone number.')
     try:
@@ -20,10 +20,10 @@ def validate_phone(field):
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
-        'artist_id'
+        'artist_id', validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id', validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
@@ -102,7 +102,7 @@ class VenueForm(FlaskForm):
         'phone', validators=[DataRequired(), validate_phone]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[DataRequired()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -133,13 +133,13 @@ class VenueForm(FlaskForm):
         'facebook_link', validators=[URL()]
     )
     website_link = StringField(
-        'website_link'
+        'website_link', validators=[DataRequired()]
     )
 
     seeking_talent = BooleanField('seeking_talent')
 
     seeking_description = StringField(
-        'seeking_description'
+        'seeking_description', validators=[DataRequired()]
     )
 
 
@@ -210,7 +210,7 @@ class ArtistForm(FlaskForm):
         'phone', validators=[DataRequired(), validate_phone]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[DataRequired()]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired()],
@@ -242,11 +242,11 @@ class ArtistForm(FlaskForm):
     )
 
     website_link = StringField(
-        'website_link'
+        'website_link', validators=[DataRequired()]
     )
 
     seeking_venue = BooleanField('seeking_venue')
 
     seeking_description = StringField(
-        'seeking_description'
+        'seeking_description', validators=[DataRequired()]
     )

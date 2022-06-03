@@ -1,4 +1,4 @@
-from flask import render_template, flash, Blueprint
+from flask import (render_template, flash, Blueprint)
 from forms import *
 from models import *
 routeShows = Blueprint('shows', __name__)

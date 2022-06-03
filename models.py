@@ -3,7 +3,6 @@ import datetime
 from sqlalchemy.dialects.postgresql import ARRAY
 from flask_migrate import Migrate
 from flask import Flask
-from enum import unique
 
 app = Flask(__name__)
 db = SQLAlchemy()
@@ -25,12 +24,10 @@ class Venue(db.Model):
     phone = db.Column(db.String(120), nullable=False, unique=True)
     genres = db.Column(ARRAY(db.String()), nullable=False, default=[])
     image_link = db.Column(db.String(500), nullable=False)
-    facebook_link = db.Column(db.String(120), nullable=True)
-    website = db.Column(db.String(200), nullable=True)
-    seeking_talent = db.Column(db.Boolean, nullable=True, default=False)
-    seeking_description = db.Column(db.String(300), nullable=True)
-    created_date = db.Column(
-        db.DateTime, default=datetime.datetime.now, nullable=False)
+    facebook_link = db.Column(db.String(120), nullable=False)
+    website = db.Column(db.String(200), nullable=False)
+    seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(300), nullable=False)
     shows = db.relationship('Show', backref='venues',
                             lazy='joined', cascade='all, delete')
 
@@ -48,12 +45,10 @@ class Artist(db.Model):
     phone = db.Column(db.String(120), nullable=False, unique=True)
     genres = db.Column(ARRAY(db.String()), default=[], nullable=False)
     image_link = db.Column(db.String(500), nullable=False)
-    website = db.Column(db.String(200), nullable=True)
-    facebook_link = db.Column(db.String(120), nullable=True)
-    seeking_venue = db.Column(db.Boolean, nullable=True, default=False)
-    seeking_description = db.Column(db.String(300), nullable=True)
-    created_date = db.Column(
-        db.DateTime, default=datetime.datetime.now, nullable=False)
+    website = db.Column(db.String(200), nullable=False)
+    facebook_link = db.Column(db.String(120), nullable=False)
+    seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(300), nullable=False)
     shows = db.relationship('Show', backref='artists',
                             lazy='joined', cascade='all, delete')
 

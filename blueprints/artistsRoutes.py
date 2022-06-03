@@ -1,9 +1,11 @@
-from flask import Blueprint, Flask, redirect, render_template, request, flash, url_for
-import dateutil.parser
 import babel
+import dateutil.parser
+from flask import (Blueprint, redirect, render_template,
+                   request, flash, url_for)
 from forms import *
 import datetime
 from models import *
+
 routeArtists = Blueprint('artists', __name__)
 
 
@@ -15,9 +17,10 @@ def format_datetime(value, format='medium'):
         format = "EE MM, dd, y h:mma"
     return babel.dates.format_datetime(date, format, locale='en')
 
-
 #  Artists
 #  ----------------------------------------------------------------
+
+
 @routeArtists.route('/artists')
 def artists():
     data = [{"id": artist.id, "name": artist.name}
@@ -55,26 +58,33 @@ def show_artist(artist_id):
     expectedDataInfo = ["id", "name", "genres", "city", "state", "phone", "website", "facebook_link", "seeking_venue",
                         "seeking_description", "image_link", "past_shows", "past_shows_count", "upcoming_shows", "upcoming_shows_count"]
     artist = Artist.query.get(artist_id)
-    # loop through the artist result queried
-    for singleShow in artist.shows:
-        if singleShow.start_time > datetime.datetime.now():
-            numberOfUpcomingNewShows = numberOfUpcomingNewShows + 1
-            newUpcomingShowsList.append(singleShow.venue_id)
-            newUpcomingShowsList.append(singleShow.venues.name)
-            newUpcomingShowsList.append(singleShow.venues.image_link)
-            newUpcomingShowsList.append(
-                format_datetime(str(singleShow.start_time)))
-            upcomingShowsCombine = dict(
-                zip(initialInfoList, newUpcomingShowsList))
-            upcomingNewShows.append(upcomingShowsCombine)
-        else:
-            numberOfOldShows = numberOfOldShows + 1
-            oldShowsList.append(singleShow.venue_id)
-            oldShowsList.append(singleShow.venues.name)
-            oldShowsList.append(singleShow.venues.image_link)
-            oldShowsList.append(format_datetime(str(singleShow.start_time)))
-            oldShowsCombine = dict(zip(initialInfoList, oldShowsList))
-            oldShows.append(oldShowsCombine)
+    # query to get upcoming shows using joins from shows table and venue table
+    # filtering by start time being greater than present time
+    upcoming_shows_query = db.session.query(Show).join(Venue).filter(
+        Show.artist_id == artist_id).filter(Show.start_time > datetime.datetime.now()).all()
+    for singleShow in upcoming_shows_query:
+        newUpcomingShowsList.append(singleShow.artist_id)
+        newUpcomingShowsList.append(singleShow.venues.name)
+        newUpcomingShowsList.append(singleShow.venues.image_link)
+        newUpcomingShowsList.append(
+            format_datetime(str(singleShow.start_time)))
+        upcomingShowsCombine = dict(
+            zip(initialInfoList, newUpcomingShowsList))
+        newUpcomingShowsList.clear()
+        upcomingNewShows.append(upcomingShowsCombine)
+    # query to get upcoming shows using joins from shows table and venue table
+    # filtering by start time being less than present time
+    past_shows_query = db.session.query(Show).join(Venue).filter(
+        Show.artist_id == artist_id).filter(Show.start_time < datetime.datetime.now()).all()
+    for singleShow in past_shows_query:
+        oldShowsList.append(singleShow.artist_id)
+        oldShowsList.append(singleShow.venues.name)
+        oldShowsList.append(singleShow.venues.image_link)
+        oldShowsList.append(format_datetime(
+            str(singleShow.start_time)))
+        oldShowsCombine = dict(zip(initialInfoList, oldShowsList))
+        oldShowsList.clear()
+        oldShows.append(oldShowsCombine)
 
     # adding the needed info to initialized list variable
     exportSingleArtist.append(artist_id)
@@ -89,9 +99,9 @@ def show_artist(artist_id):
     exportSingleArtist.append(artist.seeking_description)
     exportSingleArtist.append(artist.image_link)
     exportSingleArtist.append(oldShows)
-    exportSingleArtist.append(numberOfOldShows)
+    exportSingleArtist.append(len(past_shows_query))
     exportSingleArtist.append(upcomingNewShows)
-    exportSingleArtist.append(numberOfUpcomingNewShows)
+    exportSingleArtist.append(len(upcoming_shows_query))
     return render_template('pages/show_artist.html', artist=dict(zip(expectedDataInfo, exportSingleArtist)))
 
 #  Update
