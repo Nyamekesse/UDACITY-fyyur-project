@@ -4,9 +4,11 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from flask_migrate import Migrate
 from flask import Flask
 from enum import unique
+
 app = Flask(__name__)
 db = SQLAlchemy()
 migrate = Migrate(app, db)
+
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
