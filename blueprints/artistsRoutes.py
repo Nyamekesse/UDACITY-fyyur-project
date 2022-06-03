@@ -62,6 +62,8 @@ def show_artist(artist_id):
     # filtering by start time being greater than present time
     upcoming_shows_query = db.session.query(Show).join(Venue).filter(
         Show.artist_id == artist_id).filter(Show.start_time > datetime.datetime.now()).all()
+    # looping through the gathered upcoming shows and appending
+    # the needed info inside a list
     for singleShow in upcoming_shows_query:
         newUpcomingShowsList.append(singleShow.artist_id)
         newUpcomingShowsList.append(singleShow.venues.name)
@@ -76,6 +78,8 @@ def show_artist(artist_id):
     # filtering by start time being less than present time
     past_shows_query = db.session.query(Show).join(Venue).filter(
         Show.artist_id == artist_id).filter(Show.start_time < datetime.datetime.now()).all()
+    # looping through the gathered past shows and appending
+    # the needed info inside a list
     for singleShow in past_shows_query:
         oldShowsList.append(singleShow.artist_id)
         oldShowsList.append(singleShow.venues.name)
