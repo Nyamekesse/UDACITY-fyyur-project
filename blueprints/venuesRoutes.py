@@ -18,7 +18,7 @@ def format_datetime(value, format='medium'):
 
 
 def validate_contact(num):
-    if (len(num) != 10):
+    if len(num) != 10:
         return False
     else:
         return True
