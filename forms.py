@@ -1,7 +1,8 @@
 from datetime import datetime
+import re
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, URL
 import phonenumbers
 
 
@@ -99,7 +100,7 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone', validators=[DataRequired(), validate_phone]
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link', validators=[DataRequired()]
@@ -136,7 +137,8 @@ class VenueForm(FlaskForm):
         'website_link', validators=[DataRequired()]
     )
 
-    seeking_talent = BooleanField('seeking_talent')
+    seeking_talent = BooleanField(
+        'seeking_talent', validators=[DataRequired()])
 
     seeking_description = StringField(
         'seeking_description', validators=[DataRequired()]
@@ -207,7 +209,7 @@ class ArtistForm(FlaskForm):
         ]
     )
     phone = StringField(
-        'phone', validators=[DataRequired(), validate_phone]
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link', validators=[DataRequired()]
@@ -245,7 +247,7 @@ class ArtistForm(FlaskForm):
         'website_link', validators=[DataRequired()]
     )
 
-    seeking_venue = BooleanField('seeking_venue')
+    seeking_venue = BooleanField('seeking_venue', validators=[DataRequired()])
 
     seeking_description = StringField(
         'seeking_description', validators=[DataRequired()]

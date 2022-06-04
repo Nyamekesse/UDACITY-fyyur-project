@@ -152,7 +152,7 @@ def edit_artist_submission(artist_id):
         print(e)
     finally:
         db.session.close()
-        return redirect(url_for('show_artist', artist_id=artist_id))
+        return redirect(url_for('artists.show_artist', artist_id=artist_id))
 
 
 #  Create Artist
@@ -166,7 +166,7 @@ def create_artist_form():
 @routeArtists.route('/artists/create', methods=['POST'])
 def create_artist_submission():
     # called upon submitting the new artist listing form
-    form = ArtistForm()
+    form = ArtistForm(request.form)
     try:
         if form.validate_on_submit():
             new_artist = Artist(
@@ -187,8 +187,9 @@ def create_artist_submission():
             flash('Artist ' + request.form['name'] +
                   ' was successfully listed!')
     except Exception as e:
-        flash('Artist ' + request.form['name'] + ' was unsuccessfully listed!')
         print(e)
+        flash('Artist ' + request.form['name'] +
+              ' was unsuccessfully listed!')
     finally:
         db.session.close()
         return render_template('pages/home.html')

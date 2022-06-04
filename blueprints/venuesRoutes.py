@@ -112,7 +112,7 @@ def show_venue(venue_id):
     exportSingleVenueList.append(len(upcoming_shows_query))
 
     data = dict(zip(expectedDataInfo, exportSingleVenueList))
-    print(data)
+
     return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
@@ -127,7 +127,7 @@ def create_venue_form():
 
 @routeVenues.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-    form = VenueForm()
+    form = VenueForm(request.form)
     try:
         if form.validate_on_submit():
             new_venue = Venue(
@@ -216,4 +216,4 @@ def edit_venue_submission(venue_id):
         print(e)
     finally:
         db.session.close()
-        return redirect(url_for('show_venue', venue_id=venue_id))
+        return redirect(url_for('venues.show_venue', venue_id=venue_id))
