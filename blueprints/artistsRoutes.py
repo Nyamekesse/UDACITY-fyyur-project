@@ -17,6 +17,12 @@ def format_datetime(value, format='medium'):
         format = "EE MM, dd, y h:mma"
     return babel.dates.format_datetime(date, format, locale='en')
 
+
+def validate_contact(num):
+    if (len(num) != 10):
+        return False
+    else:
+        return True
 #  Artists
 #  ----------------------------------------------------------------
 
@@ -167,8 +173,11 @@ def create_artist_form():
 def create_artist_submission():
     # called upon submitting the new artist listing form
     form = ArtistForm(request.form)
+    isValid = validate_contact(request.form['phone'])
     try:
-        if form.validate_on_submit():
+        if(isValid == False):
+            flash('In correct contact number')
+        elif form.validate_on_submit():
             new_artist = Artist(
                 name=form.name.data,
                 city=form.city.data,

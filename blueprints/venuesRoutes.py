@@ -16,6 +16,12 @@ def format_datetime(value, format='medium'):
         format = "EE MM, dd, y h:mma"
     return babel.dates.format_datetime(date, format, locale='en')
 
+
+def validate_contact(num):
+    if (len(num) != 10):
+        return False
+    else:
+        return True
 #  Venues
 #  ----------------------------------------------------------------
 
@@ -128,8 +134,11 @@ def create_venue_form():
 @routeVenues.route('/venues/create', methods=['POST'])
 def create_venue_submission():
     form = VenueForm(request.form)
+    isValid = validate_contact(request.form['phone'])
     try:
-        if form.validate_on_submit():
+        if(isValid == False):
+            flash('In correct contact number')
+        elif form.validate_on_submit():
             new_venue = Venue(
                 name=form.name.data,
                 city=form.city.data,

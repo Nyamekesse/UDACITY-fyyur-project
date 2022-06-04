@@ -1,22 +1,8 @@
 from datetime import datetime
-import re
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, URL
-import phonenumbers
-
-
-def validate_phone(form, field):
-    if len(field.data) != 10:
-        raise ValidationError('Invalid phone number.')
-    try:
-        input_number = phonenumbers.parse(field.data)
-        if not (phonenumbers.is_valid_number(input_number)):
-            raise ValidationError('Invalid phone number.')
-    except:
-        input_number = phonenumbers.parse(field.data)
-        if not (phonenumbers.is_valid_number(input_number)):
-            raise ValidationError('Invalid phone number.')
+from wtforms import (StringField, SelectField,
+                     SelectMultipleField, DateTimeField, BooleanField)
+from wtforms.validators import (DataRequired, URL)
 
 
 class ShowForm(FlaskForm):
@@ -138,7 +124,7 @@ class VenueForm(FlaskForm):
     )
 
     seeking_talent = BooleanField(
-        'seeking_talent', validators=[DataRequired()])
+        'seeking_talent')
 
     seeking_description = StringField(
         'seeking_description', validators=[DataRequired()]
@@ -247,7 +233,7 @@ class ArtistForm(FlaskForm):
         'website_link', validators=[DataRequired()]
     )
 
-    seeking_venue = BooleanField('seeking_venue', validators=[DataRequired()])
+    seeking_venue = BooleanField('seeking_venue')
 
     seeking_description = StringField(
         'seeking_description', validators=[DataRequired()]
