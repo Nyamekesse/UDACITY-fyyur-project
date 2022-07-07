@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 SECRET_KEY = os.urandom(32)
 # Grabs the folder where the script runs.
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -13,8 +16,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 class DatabaseURI:
     # Just change the names of your database and credentials and all to connect to your local system
     DATABASE_NAME = "fyyurdb"
-    username = 'phoenix'
-    password = '00195433Kk!'
+    username = os.getenv('usrname')
+    password = os.getenv('passwd')
     url = 'localhost:5432'
 
     SQLALCHEMY_DATABASE_URI = "postgresql://{}:{}@{}/{}".format(
